@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
+import os
 
 load_dotenv() #load enviroment variable
 
@@ -11,8 +12,9 @@ load_dotenv() #load enviroment variable
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
 llm = ChatOpenAI(
+    openai_api_key=openrouter_api_key,
     openai_api_base="https://openrouter.ai/api/v1",
-    model="openrouter/gpt-3.5-turbo"
+    model="gpt-3.5-turbo"
 )
 
 response = llm.invoke("What is the meaning of life?")
