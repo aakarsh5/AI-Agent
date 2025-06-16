@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+.env
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Python egg metadata
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Pytest
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Requirements (keep the file, just don't cache pip environments)
+# requirements.txt should NOT be ignored
+# If you have pipenv or poetry files, add these if not needed
+Pipfile.lock
+poetry.lock
