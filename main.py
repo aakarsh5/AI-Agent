@@ -1,37 +1,57 @@
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
-from langchain.agents import create_tool_calling_agent
+from langchain.agents import create_tool_calling_agent, AgentExecutor
 
-from langchain_community.llms import Ollama
+# Load environment variables
+load_dotenv()
 
+class ResearchResponse(BaseModel):
+    topic: str
+    summary: str
+    sources: list[str]
+    tool_used: list[str]
 
-load_dotenv() #load enviroment variable
+# Initialize LLM
+openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+llm = ChatOpenAI(
+    openai_api_key=openrouter_api_key,
+    openai_api_base="https://openrouter.ai/api/v1",
+    model="gpt-3.5-turbo"
+)
 
-# llm = ChatOpenAI(model = "gpt-4o-mini")
-llm = Ollama(model="llama3")
+# Output parser
+parser = PydanticOutputParser(pydantic_object=ResearchResponse)
 
-# llm2 = ChatAnthropic(model = "claude-3-5-sonnet-20241022")
+# Prompt template
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a research assistant that helps write research papers.\n"
+            "Use tools when needed.\n"
+            "Respond to the user query with a well-researched answer, formatted using the following JSON schema:\n{format_instructions}\nReturn real data in this format, not the schema itself."
 
-# class ResearchResponse(BaseModel):
-#     topic:str
-#     summary:str
-#     sources:list[str]
-#     tool_used:list[str]
+        ),
+        ("human", "{input}"),
+        ("ai", "{agent_scratchpad}")
+    ]
+).partial(format_instructions=parser.get_format_instructions())
 
+# Dummy tool list
+tools = []  # Add actual tools here later
 
-# openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+# Create the agent
+agent = create_tool_calling_agent(
+    llm=llm,
+    prompt=prompt,
+    tools=tools
+)
 
-# llm = ChatOpenAI(
-#     openai_api_key=openrouter_api_key,
-#     openai_api_base="https://openrouter.ai/api/v1",
-#     model="gpt-3.5-turbo"
-# )
-# parser = PydanticOutputParser(pydantic_object=ResearchResponse)
-
-response = llm.invoke("What is the meaning of life?")
-print(response)
+# Run the agent executor
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+raw_response = agent_executor.invoke({"input": "What is the capital of Nepal?"})
+print(raw_response)
