@@ -15,7 +15,7 @@ class ResearchResponse(BaseModel):
     summary: str
     sources: list[str]
     tool_used: list[str]
-
+    
 # Initialize LLM
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 llm = ChatOpenAI(
