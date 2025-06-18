@@ -5,7 +5,7 @@ import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import search_tool
+from tools import search_tool,wiki_tool,save_tool
 
 # Load environment variables
 load_dotenv()
@@ -43,7 +43,7 @@ prompt = ChatPromptTemplate.from_messages(
 ).partial(format_instructions=parser.get_format_instructions())
 
 # Dummy tool list
-tools = [search_tool]  # Add actual tools here later
+tools = [search_tool,wiki_tool,save_tool]  # Add actual tools here later
 
 # Create the agent
 agent = create_tool_calling_agent(
