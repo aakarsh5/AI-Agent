@@ -5,6 +5,7 @@ import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+from tools import search_tool
 
 # Load environment variables
 load_dotenv()
@@ -42,7 +43,7 @@ prompt = ChatPromptTemplate.from_messages(
 ).partial(format_instructions=parser.get_format_instructions())
 
 # Dummy tool list
-tools = []  # Add actual tools here later
+tools = [search_tool]  # Add actual tools here later
 
 # Create the agent
 agent = create_tool_calling_agent(
@@ -53,5 +54,15 @@ agent = create_tool_calling_agent(
 
 # Run the agent executor
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-raw_response = agent_executor.invoke({"input": "What is the capital of Nepal?"})
-print(raw_response)
+query = input("What can I help you with ? ")
+raw_response = agent_executor.invoke({"input":query})
+# print(raw_response)
+
+try:
+    output_text = raw_response.get("output", "")
+    structured_response = parser.parse(output_text)
+    print(structured_response)
+except Exception as e:
+    print("❌ Error parsing response:", e)
+    print("🧾 Raw response:", raw_response)
+
