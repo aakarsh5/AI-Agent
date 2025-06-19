@@ -1,5 +1,5 @@
 "use client";
-
+import { ModeToggle } from "@/components/theme-toggle";
 import Link from "next/link"; // ✅ Correct import
 import {
   Calendar,
@@ -42,7 +42,7 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "Calendar",
+    title: "ThemeProvider",
     url: "/",
     icon: Calendar,
   },
@@ -63,7 +63,12 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            <div className="font-bold">Guru AI</div>
+            <div className="ml-auto flex items-center">
+              <ModeToggle />
+            </div>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

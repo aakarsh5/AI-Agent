@@ -21,7 +21,6 @@ export default function RootLayout({
           themes={["orange", "dark", "light"]}
         >
           <SidebarProvider>
-            {/* Sidebar fixed width */}
             <AppSidebar />
             {/* <Navigation /> */}
 
