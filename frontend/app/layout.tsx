@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Navigation } from "@/components/navbar";
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
           <SidebarProvider>
             {/* Sidebar fixed width */}
             <AppSidebar />
+            {/* <Navigation /> */}
 
             {/* Main layout expands */}
             <main className="flex-1 overflow-y-auto">
