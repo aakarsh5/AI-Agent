@@ -59,3 +59,16 @@ docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
 all_splits = text_splitter.split_documents(docs)
 
+######################################################################
+#Index chunks
+_ = vector_store.add_documents(documents=all_splits)
+
+prompt = hub.pull("rlm/rag-prompt")
+
+
+#state for application
+class State(TypedDict):
+  question: str
+  context: List[Document]
+  answer: str
+
