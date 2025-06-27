@@ -72,7 +72,11 @@ if __name__ == "__main__":
     response = graph.invoke({"question": question})
     print(f"\n🧠 Answer:\n{response['answer']}")
     
-
-
-
 print(f"Split blog post into {len(all_splits)} sub-documents.")
+
+example_message = prompt.invoke(
+    {"context":"Summary","question":"What is the capital of Nepal?"}
+).to_messages()
+
+assert len(example_message) == 1
+print(example_message[0].content)
