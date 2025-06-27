@@ -1,6 +1,6 @@
 import os
-import getpass
 import bs4
+from dotenv import load_dotenv
 from typing_extensions import List, TypedDict
 
 from langchain import hub
@@ -12,15 +12,10 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.chat_models import init_chat_model
 from langgraph.graph import START, StateGraph
 
-# ─── Environment Setup ────────────────────────────────────────────────
-os.environ["USER_AGENT"] = "LangChainBot/0.1"
-os.environ["LANGSMITH_TRACING"] = "true"
-os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter LangSmith API key: ")
+# ─── Load Environment Variables ───────────────────────────────────────
+load_dotenv()
 
-if not os.environ.get("GOOGLE_API_KEY"):
-    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
-
-# ─── Model Initialization ─────────────────────────────────────────────
+# ─── Initialize Models ────────────────────────────────────────────────
 llm = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
@@ -65,5 +60,7 @@ graph = (
 )
 
 # ─── Run ──────────────────────────────────────────────────────────────
-response = graph.invoke({"question": "What is Task Decomposition?"})
-print(response["answer"])
+if __name__ == "__main__":
+    question = "What is Task Decomposition?"
+    response = graph.invoke({"question": question})
+    print(f"\n🧠 Answer:\n{response['answer']}")
