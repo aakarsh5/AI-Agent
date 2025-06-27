@@ -41,6 +41,13 @@ class State(TypedDict):
     context: List[Document]
     answer: str
 
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,  # chunk size (characters)
+    chunk_overlap=200,  # chunk overlap (characters)
+    add_start_index=True,  # track index in original document
+)
+all_splits = text_splitter.split_documents(docs)
+
 # ─── Application Steps ────────────────────────────────────────────────
 def retrieve(state: State):
     return {"context": vector_store.similarity_search(state["question"])}
@@ -64,3 +71,8 @@ if __name__ == "__main__":
     question = "What is Task Decomposition?"
     response = graph.invoke({"question": question})
     print(f"\n🧠 Answer:\n{response['answer']}")
+    
+
+
+
+print(f"Split blog post into {len(all_splits)} sub-documents.")
