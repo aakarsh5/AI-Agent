@@ -8,6 +8,7 @@ import fitz  # PyMuPDF
 import base64
 import io
 from PIL import Image
+import sys
 
 
 # -----------------------------
@@ -139,12 +140,12 @@ compiled = graph.compile()
 # -----------------------------
 # Run the pipeline
 # -----------------------------
-
+#"What does the pdf contain ? Does this pdf contain any image ? if yes what does the image contain ?"
 pdf_path = "./hello.pdf"
 total_pages = len(fitz.open(pdf_path))
 
 output = compiled.invoke({
-    "question": "What does the diagram on page 4 explain?",
+    "question": input("Enter your Question ?"),
     "query_type": "visual",
     "query": {},
     "answer": None,
