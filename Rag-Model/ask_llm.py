@@ -1,9 +1,9 @@
-import os
-import base64
-from typing import List, Optional
+import fitz
+from typing import List
 from langchain_core.documents import Document
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+from pdf_parser import run_pdf_pipeline
 
 # -----------------------------
 # Define LLM
@@ -20,14 +20,13 @@ def ask_question_with_docs(docs: List[Document], question: str) -> str:
         SystemMessage(content="You are a helpful assistant who answers questions based on PDF content.")
     ]
 
-    # Separate text chunks and image docs
+    # Separate text and image documents
     text_chunks = [doc.page_content for doc in docs if doc.metadata.get("type") != "Image"]
     image_docs = [doc for doc in docs if doc.metadata.get("type") == "Image"]
 
     context = "\n\n".join(text_chunks)
     content = [{"type": "text", "text": f"Context:\n{context}\n\nQuestion: {question}"}]
 
-    # If image present, add base64-encoded image
     for img_doc in image_docs:
         image_base64 = img_doc.metadata.get("image_base64")
         if image_base64:
@@ -38,21 +37,34 @@ def ask_question_with_docs(docs: List[Document], question: str) -> str:
 
     messages.append(HumanMessage(content=content))
 
-    # Get response from Gemini
+    # Get response
     response = llm.invoke(messages)
     return response.content
 
 
 # -----------------------------
-# Example Usage
+# Main Execution
 # -----------------------------
 
 if __name__ == "__main__":
-    from pdf import output  # Import the result from the first script
+    pdf_path = "./hello.pdf"
+    total_pages = len(fitz.open(pdf_path))
+    question = input("Enter your Question? ")
 
-    question = output["question"]
+    output = run_pdf_pipeline({
+        "question": question,
+        "query_type": "visual",
+        "query": {},
+        "answer": None,
+        "pdf_path": pdf_path,
+        "current_page": 1,
+        "total_pages": total_pages,
+        "page_docs": [],
+        "docs": [],
+        "page_image": None
+    })
+
     docs = output["docs"]
-
     print(f"🔍 Asking: {question}")
     answer = ask_question_with_docs(docs, question)
 
