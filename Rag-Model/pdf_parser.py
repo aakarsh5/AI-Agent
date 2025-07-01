@@ -1,3 +1,5 @@
+### 📄 pdf_parser.py
+
 from typing import TypedDict, List, Literal, Optional
 from langchain_core.documents import Document
 from langchain_unstructured import UnstructuredLoader
@@ -8,10 +10,6 @@ import fitz  # PyMuPDF
 import base64
 import io
 from PIL import Image
-
-# -----------------------------
-# Define the application state
-# -----------------------------
 
 class State(TypedDict):
     question: str
@@ -26,50 +24,30 @@ class State(TypedDict):
     docs: List[Document]
     page_image: Optional[str]
 
-
-# -----------------------------
-# Load & extract page content
-# -----------------------------
-
 def extract_page_content(state: State):
     loader = UnstructuredLoader(
         file_path=state["pdf_path"],
         strategy="hi_res",
-        partition_via_api=False,  # use local parsing
+        partition_via_api=False,
     )
     all_docs = list(loader.lazy_load())
     page_docs = [doc for doc in all_docs if doc.metadata.get("page_number") == state["current_page"]]
     return {"page_docs": page_docs}
 
-
-# -----------------------------
-# Check if the page is an image
-# -----------------------------
-
 def is_image_page(state: State):
     return any(doc.metadata.get("category") == "Image" for doc in state["page_docs"])
-
-
-# -----------------------------
-# Process text pages
-# -----------------------------
 
 def process_text_page(state: State):
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = splitter.split_documents(state["page_docs"])
     return {"docs": state["docs"] + chunks}
 
-
-# -----------------------------
-# Process image pages
-# -----------------------------
-
 def process_image_page(state: State):
     doc = fitz.open(state["pdf_path"])
     page_index = state["current_page"] - 1
 
     if page_index >= len(doc):
-        raise ValueError(f"Page {state['current_page']} does not exist in the PDF (total pages = {len(doc)}).")
+        raise ValueError(f"Page {state['current_page']} does not exist.")
 
     page = doc.load_page(page_index)
     pix = page.get_pixmap()
@@ -88,18 +66,8 @@ def process_image_page(state: State):
     )
     return {"docs": state["docs"] + [image_doc]}
 
-
-# -----------------------------
-# Move to the next page
-# -----------------------------
-
 def advance_page(state: State):
     return {"current_page": state["current_page"] + 1}
-
-
-# -----------------------------
-# Setup LangGraph
-# -----------------------------
 
 llm = ChatGoogleGenerativeAI(model="gemini-pro-vision")
 
@@ -126,30 +94,5 @@ graph.add_conditional_edges("advance", lambda s: s["current_page"] <= s["total_p
 
 compiled = graph.compile()
 
-
-# -----------------------------
-# Run the pipeline
-# -----------------------------
-
 def run_pdf_pipeline(state: State) -> State:
     return compiled.invoke(state)
-
-
-if __name__ == "__main__":
-    pdf_path = "./hello.pdf"
-    total_pages = len(fitz.open(pdf_path))
-
-    output = run_pdf_pipeline({
-        "question": input("Enter your Question? "),
-        "query_type": "visual",
-        "query": {},
-        "answer": None,
-        "pdf_path": pdf_path,
-        "current_page": 1,
-        "total_pages": total_pages,
-        "page_docs": [],
-        "docs": [],
-        "page_image": None
-    })
-
-    print("Graph completed. Docs extracted:", len(output["docs"]))
