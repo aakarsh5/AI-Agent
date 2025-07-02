@@ -145,7 +145,7 @@ pdf_path = "./hello.pdf"
 total_pages = len(fitz.open(pdf_path))
 
 output = compiled.invoke({
-    "question": input("Enter your Question ?"),
+    "question": "",
     "query_type": "visual",
     "query": {},
     "answer": None,

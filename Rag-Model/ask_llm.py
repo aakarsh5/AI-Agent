@@ -4,6 +4,7 @@ from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.documents import Document
 
 # -----------------------------
 # Define LLM
@@ -43,18 +44,24 @@ def ask_question_with_docs(docs: List[Document], question: str) -> str:
     return response.content
 
 
-# -----------------------------
-# Example Usage
-# -----------------------------
+
 
 if __name__ == "__main__":
     from pdf_parser import output 
 
-    question = output["question"]
+    # question = output["question"]
     docs = output["docs"]
+    assert isinstance(output["docs"],list)
+    assert all(isinstance(doc,Document) for doc in output["docs"])
 
-    print(f"🔍 Asking: {question}")
-    answer = ask_question_with_docs(docs, question)
+    print("Ask Your Question. Write quit or exit to exit.")
 
-    print("\n✅ Answer:")
-    print(answer)
+    while True:
+        question = input("Ask Your Question ")
+        if question.lower() in ['exit','quit']:
+            print("Exiting:")
+            break
+
+        answer = ask_question_with_docs(docs, question)
+        print("\n Answer:")
+        print(answer)
